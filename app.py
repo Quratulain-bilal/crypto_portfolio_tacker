@@ -48,25 +48,7 @@ def set_custom_css():
             font-weight: bold;
         }
 
-        /* Footer Styling */
-        .footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: black; /* Change to black */
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .footer a {
-            color: white;
-            text-decoration: none;
-            margin: 0 10px;
-        }
-        .footer a:hover {
-            text-decoration: underline;
-        }
+      
 
         /* Sidebar Styling */
         .sidebar .sidebar-content {
@@ -244,7 +226,6 @@ st.markdown("""
 <div class="navbar">
     <div class="logo">📊 Crypto Portfolio Tracker</div>
     <div>
-        <a href="https://github.com/your-repo" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
         <a href="https://facebook.com/your-facebook" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
     </div>
 </div>
@@ -411,12 +392,3 @@ if st.session_state.logged_in:
     else:
         st.info("Your portfolio is empty. Add assets to get started!")
 
-# Footer
-st.markdown("""
-<div class="footer">
-    © 2023 Crypto Portfolio Tracker | 
-    <a href="https://github.com/your-repo" target="_blank">GitHub</a> | 
-    <a href="https://twitter.com/your-twitter" target="_blank">Twitter</a> | 
-    <a href="https://facebook.com/your-facebook" target="_blank">Facebook</a>
-</div>
-""", unsafe_allow_html=True)

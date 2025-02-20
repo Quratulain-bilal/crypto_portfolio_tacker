@@ -1,8 +1,8 @@
-streamlit
-pandas
-numpy
-openpyxl
-plotly
-transformers
-torch
-streamlit-lottie
+streamlit==1.42.1
+pandas==2.2.3
+numpy==2.2.3
+requests==2.32.3
+plotly==6.0.0
+scikit-learn==1.5.0  
+transformers==4.49.0
+torch==2.6.0

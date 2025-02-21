@@ -7,10 +7,112 @@ import hashlib
 from sklearn.linear_model import LinearRegression
 import numpy as np
 
+# ==================== Multi-Language Support ====================
+LANGUAGES = {
+    "en": {  # English
+        "login": "Login",
+        "signup": "Signup",
+        "logout": "Logout",
+        "portfolio": "Portfolio",
+        "add_asset": "Add Asset",
+        "delete_asset": "Delete Asset",
+        "news": "Latest News",
+        "backtest": "Backtest Strategy",
+        "predict": "Predict Future Price",
+        "password": "Password",
+        "username": "Username",
+        "empty_portfolio": "Your portfolio is empty. Add assets to get started!",
+        "profit_loss": "Profit/Loss by Asset",
+        "distribution": "Portfolio Distribution",
+        "download_csv": "Download Portfolio as CSV",
+        "no_news": "No news available at the moment.",
+        "backtest_results": "Backtest Results",
+        "future_prices": "Predicted Prices for Next 7 Days",
+    },
+    "ur": {  # Urdu
+        "login": "لاگ ان",
+        "signup": "سائن اپ",
+        "logout": "لاگ آؤٹ",
+        "portfolio": "پورٹ فولیو",
+        "add_asset": "ایسٹ شامل کریں",
+        "delete_asset": "ایسٹ حذف کریں",
+        "news": "تازہ ترین خبریں",
+        "backtest": "رجحان کی جانچ پڑتال",
+        "predict": "مستقبل کی قیمت پیش گوئی",
+        "password": "پاس ورڈ",
+        "username": "صارف نام",
+        "empty_portfolio": "آپ کا پورٹ فولیو خالی ہے۔ شروع کرنے کے لیے ایسٹ شامل کریں!",
+        "profit_loss": "نمائش/نقصان بلحاظ ایسٹ",
+        "distribution": "پورٹ فولیو کی تقسیم",
+        "download_csv": "پورٹ فولیو ڈاؤنلوڈ کریں (CSV)",
+        "no_news": "ابھی کوئی خبر دستیاب نہیں ہے۔",
+        "backtest_results": "رجحان کی جانچ پڑتال کے نتائج",
+        "future_prices": "اگلے 7 دنوں کی قیمتیں پیش گوئی",
+    },
+    "nl": {  # Dutch
+        "login": "Inloggen",
+        "signup": "Registreren",
+        "logout": "Uitloggen",
+        "portfolio": "Portefeuille",
+        "add_asset": "Actief Toevoegen",
+        "delete_asset": "Actief Verwijderen",
+        "news": "Laatste Nieuws",
+        "backtest": "Strategie Backtesten",
+        "predict": "Voorspel Toekomstige Prijs",
+        "password": "Wachtwoord",
+        "username": "Gebruikersnaam",
+        "empty_portfolio": "Je portefeuille is leeg. Voeg activa toe om te beginnen!",
+        "profit_loss": "Winst/Verlies per Actief",
+        "distribution": "Portefeuilleverdeling",
+        "download_csv": "Portefeuille Downloaden als CSV",
+        "no_news": "Op dit moment geen nieuws beschikbaar.",
+        "backtest_results": "Backtest Resultaten",
+        "future_prices": "Voorspelde Prijzen voor de Komende 7 Dagen",
+    },
+}
+
+if 'language' not in st.session_state:
+    st.session_state.language = "en"
+
+def translate(key):
+    return LANGUAGES[st.session_state.language].get(key, key)
+
 # ==================== Custom CSS for Styling ====================
 def set_custom_css():
     css = """
-     
+    <style>
+        /* General Styling */
+        body { background-color: #121212; color: #ffffff; }
+        .stButton>button { background-color: #bb86fc; color: #000000; border-radius: 5px; }
+        .stTextInput>div>input { background-color: #1e1e1e; color: #ffffff; border-radius: 5px; padding: 10px; }
+        .sidebar .sidebar-content { background-color: #1e1e1e; color: #ffffff; }
+        h1, h2, h3, h4, h5, h6 { color: #bb86fc; }
+        .stMarkdown p { color: #ffffff; }
+        .stDataFrame { background-color: #1e1e1e; color: #ffffff; }
+        img { border-radius: 10px; }
+
+        /* Reduce White Space */
+        .block-container { padding-top: 1rem; padding-bottom: 1rem; }
+        .stPlotlyChart { margin-top: 1rem; margin-bottom: 1rem; }
+
+        /* Backtesting and Prediction Sections */
+        .backtesting-section, .prediction-section {
+            background-color: #1e1e1e;
+            border: 1px solid #bb86fc;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* News Section */
+        .news-section {
+            background-color: #1e1e1e;
+            border: 1px solid #bb86fc;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+    </style>
     """
     st.markdown(css, unsafe_allow_html=True)
 
@@ -105,27 +207,36 @@ st.set_page_config(page_title="Crypto Portfolio Tracker", layout="wide")
 set_custom_css()
 
 # Sidebar for Login/Logout and Settings
-st.sidebar.header("User Settings")
+st.sidebar.header(translate("username"))
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
+# Language Selector
+language = st.sidebar.selectbox(translate("language"), ["English", "Urdu", "Dutch"])
+if language == "English":
+    st.session_state.language = "en"
+elif language == "Urdu":
+    st.session_state.language = "ur"
+elif language == "Dutch":
+    st.session_state.language = "nl"
+
 if not st.session_state.logged_in:
-    st.sidebar.title("🔒 Login / Signup")
-    choice = st.sidebar.selectbox("Choose an option:", ["Login", "Signup"])
+    st.sidebar.title(f"🔒 {translate('login')} / {translate('signup')}")
+    choice = st.sidebar.selectbox("Choose an option:", [translate("login"), translate("signup")])
 
-    username = st.sidebar.text_input("Trader Username")
-    password = st.sidebar.text_input("Password", type="password")
+    username = st.sidebar.text_input(translate("username"))
+    password = st.sidebar.text_input(translate("password"), type="password")
 
-    if choice == "Login":
-        if st.sidebar.button("Login"):
+    if choice == translate("login"):
+        if st.sidebar.button(translate("login")):
             if authenticate_user(username, password):
                 st.session_state.logged_in = True
                 st.success(f"Logged in as {username}")
                 st.rerun()  # Refresh the app
             else:
                 st.error("Invalid username or password.")
-    elif choice == "Signup":
-        if st.sidebar.button("Signup"):
+    elif choice == translate("signup"):
+        if st.sidebar.button(translate("signup")):
             if username in load_users()["username"].values:
                 st.error("Username already exists.")
             else:
@@ -133,13 +244,13 @@ if not st.session_state.logged_in:
                 st.success("Account created successfully!")
 else:
     # Logout Button
-    if st.sidebar.button("Logout"):
+    if st.sidebar.button(translate("logout")):
         st.session_state.logged_in = False
         st.rerun()
 
 # ==================== Main App (After Login) ====================
 if st.session_state.logged_in:
-    st.title("📊 Crypto Portfolio Tracker")
+    st.title(f"📊 {translate('portfolio')}")
     st.write("Track your investments across cryptocurrencies!")
 
     # Initialize session state for portfolio
@@ -148,7 +259,7 @@ if st.session_state.logged_in:
 
     # Add Assets to Portfolio
     with st.form("add_asset_form"):
-        st.subheader("Add a Cryptocurrency to Your Portfolio")
+        st.subheader(translate("add_asset"))
         coin_id = st.selectbox("Select Cryptocurrency", [
             "bitcoin", "ethereum", "ripple", "cardano", "dogecoin",
             "binancecoin", "solana", "polkadot", "chainlink", "litecoin"
@@ -157,7 +268,7 @@ if st.session_state.logged_in:
         ticker = coin_id.capitalize()
         quantity = st.number_input("Quantity Purchased", min_value=1)
         purchase_price = st.number_input("Purchase Price ($)", min_value=0.01)
-        submitted = st.form_submit_button("Add Asset")
+        submitted = st.form_submit_button(translate("add_asset"))
 
         if submitted:
             if current_price is not None:
@@ -174,7 +285,7 @@ if st.session_state.logged_in:
 
     # Display Portfolio
     if not st.session_state.portfolio.empty:
-        st.subheader("Your Portfolio")
+        st.subheader(translate("portfolio"))
         st.session_state.portfolio["Total Investment"] = (
             st.session_state.portfolio["Quantity"] * st.session_state.portfolio["Purchase Price"]
         )
@@ -188,9 +299,9 @@ if st.session_state.logged_in:
         st.dataframe(st.session_state.portfolio)
 
         # Delete Option
-        st.subheader("Delete an Asset")
+        st.subheader(translate("delete_asset"))
         asset_to_delete = st.selectbox("Select an Asset to Delete", st.session_state.portfolio["Asset"].unique())
-        if st.button("Delete Asset"):
+        if st.button(translate("delete_asset")):
             st.session_state.portfolio = st.session_state.portfolio[
                 st.session_state.portfolio["Asset"] != asset_to_delete
             ]
@@ -200,24 +311,24 @@ if st.session_state.logged_in:
         st.subheader("Portfolio Performance")
 
         # Pie chart for asset distribution
-        fig_pie = px.pie(st.session_state.portfolio, values="Current Value", names="Asset", title="Portfolio Distribution")
+        fig_pie = px.pie(st.session_state.portfolio, values="Current Value", names="Asset", title=translate("distribution"))
         st.plotly_chart(fig_pie)
 
         # Bar chart for profit/loss
-        fig_bar = px.bar(st.session_state.portfolio, x="Asset", y="Profit/Loss", title="Profit/Loss by Asset")
+        fig_bar = px.bar(st.session_state.portfolio, x="Asset", y="Profit/Loss", title=translate("profit_loss"))
         st.plotly_chart(fig_bar)
 
         # Export Portfolio as CSV
         csv = st.session_state.portfolio.to_csv(index=False).encode('utf-8')
         st.download_button(
-            label="Download Portfolio as CSV",
+            label=translate("download_csv"),
             data=csv,
             file_name="portfolio.csv",
             mime="text/csv"
         )
 
         # Latest News with Image
-        st.subheader("Latest News")
+        st.subheader(translate("news"))
         selected_crypto = st.selectbox("Select a Cryptocurrency for News", [
             "bitcoin", "ethereum", "ripple", "cardano", "dogecoin",
             "binancecoin", "solana", "polkadot", "chainlink", "litecoin"
@@ -227,19 +338,18 @@ if st.session_state.logged_in:
             for article in news_articles[:5]:  # Show top 5 articles
                 st.markdown(f"- [{article['title']}]({article['url']})")
         else:
-            st.info("No news available at the moment.")
+            st.info(translate("no_news"))
 
         # Add Image Related to News
-        st.markdown("""
-        <div style="display: flex; align-items: center;">
-            <div style="flex: 1;">
-                <img src="https://img.freepik.com/premium-psd/candlestick-chart-transparent-background_1059676-44474.jpg?w=1380" 
-                     alt="News Chart" style="width: 100%; max-width: 300px; margin-right: 20px;">
-            </div></div>
-        """, unsafe_allow_html=True)
+        st.image(
+            "https://img.freepik.com/premium-psd/candlestick-chart-transparent-background_1059676-44474.jpg?w=1380",
+            caption="Cryptocurrency Trends",
+            use_container_width=True
+        )
 
-        # Backtesting
-        st.subheader("Backtest Trading Strategy")
+        # Backtesting Section
+        st.markdown('<div class="backtesting-section">', unsafe_allow_html=True)
+        st.subheader(translate("backtest"))
         historical_data = fetch_crypto_historical_data(selected_crypto, days=30)
         if historical_data is not None:
             st.write("Historical Data:")
@@ -248,34 +358,36 @@ if st.session_state.logged_in:
             # Simple Moving Average Strategy
             historical_data["SMA_7"] = historical_data["Price"].rolling(window=7).mean()
             historical_data["Signal"] = (historical_data["Price"] > historical_data["SMA_7"]).astype(int)
-            st.write("Backtest Results:")
+            st.write(translate("backtest_results"))
             st.dataframe(historical_data)
 
             # Line Chart for Historical Data
             fig_backtest = px.line(historical_data, x="Date", y=["Price", "SMA_7"], title=f"{selected_crypto.capitalize()} Price with SMA")
             st.plotly_chart(fig_backtest)
 
-        # Machine Learning Prediction with Image
-        st.subheader("Future Price Prediction")
+            # Add Image for Backtesting
+            st.image(
+                "https://img.freepik.com/free-photo/businessman-hand-touching-stock-market-graph-on-virtual-screen-financial-trading-investment-concept_53876-129748.jpg?w=1380",
+                caption="Backtesting Visualization",
+                use_container_width=True
+            )
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        # Machine Learning Prediction Section
+        st.markdown('<div class="prediction-section">', unsafe_allow_html=True)
+        st.subheader(translate("predict"))
         future_prices = predict_future_price(historical_data)
         if future_prices is not None:
-            st.write("Predicted Prices for Next 7 Days:")
+            st.write(translate("future_prices"))
             st.write(future_prices)
 
-            # Add Image Related to Future Prediction
-            st.markdown("""
-            <div style="display: flex; align-items: center;">
-                <div style="flex: 1;">
-                    <img src="https://img.freepik.com/free-photo/people-tablet-with-bar-graph_1134-473.jpg?t=st=1740021379~exp=1740024979~hmac=ae0e8801abd9eddb7f8dc67dcea525bf403767f4a0d34fb8abd01255bf0ad3c8&w=996" 
-                         alt="Prediction Chart" style="width: 100%; max-width: 900px; margin-right: 20px;">
-                </div>
-                </div>
-            """, unsafe_allow_html=True)
+            # Add Image for Future Prediction
+            st.image(
+                "https://img.freepik.com/free-photo/people-tablet-with-bar-graph_1134-473.jpg?t=st=1740021379~exp=1740024979~hmac=ae0e8801abd9eddb7f8dc67dcea525bf403767f4a0d34fb8abd01255bf0ad3c8&w=996",
+                caption="Future Trends",
+                use_container_width=True
+            )
+        st.markdown('</div>', unsafe_allow_html=True)
 
     else:
-        st.info("Your portfolio is empty. Add assets to get started!")
-
-# Footer
-st.markdown("""
-© 2023 Crypto Portfolio Tracker
-""", unsafe_allow_html=True)
+        st.info("⚠️ Your portfolio is empty. Add assets to get started!")
